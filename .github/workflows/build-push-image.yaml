@@ -16,8 +16,8 @@ jobs:
 
       - name: docker build app
         run: |
-          cd app && docker build -t kinluek/app-dev:1.0.1 .
+          cd app && docker build -t kinluek/app-dev:1.0.2 .
 
       - name: docker push
         run: |
-          docker push kinluek/app-dev:1.0.1
+          docker push kinluek/app-dev:1.0.2
