@@ -14,18 +14,18 @@ jobs:
         run: |
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
-      - name: docker build app dev
-        run: |
-          cd app && docker build -t kinluek/app-dev:1.0.4 .
-
-      - name: docker push dev
-        run: |
-          docker push kinluek/app-dev:1.0.4
+#      - name: docker build app dev
+#        run: |
+#          cd app && docker build -t kinluek/app-dev:1.0.4 .
+#
+#      - name: docker push dev
+#        run: |
+#          docker push kinluek/app-dev:1.0.4
 
       - name: docker build app prod
         run: |
-          cd app && docker build -t kinluek/app-prod:1.0.3 .
+          cd app && docker build -t kinluek/app-prod:1.0.4 .
 
       - name: docker push prod
         run: |
-          docker push kinluek/app-prod:1.0.3
+          docker push kinluek/app-prod:1.0.4
