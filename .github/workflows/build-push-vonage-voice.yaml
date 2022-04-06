@@ -1,6 +1,10 @@
-name: Docker build and push
-
-on: [push]
+name: Docker build and push vonage voice
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - providers/vonage-voice/**
 
 jobs:
   build:
@@ -8,10 +12,10 @@ jobs:
       TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      IMAGE_NAME: "kinluek/app-dev"
-      IMAGE_TAG: "1.0.6"
-      ARGOCD_IMAGE_FILE_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs/contents/helm/temp/example-app/values-dev-image.yaml"
-      APP_NAME: "example-app"
+      IMAGE_NAME: "kinluek/vonage-voice"
+      IMAGE_TAG: "1.0.1"
+      ARGOCD_IMAGE_FILE_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs/contents/app-configurations/providers/vonage-voice/values-dev-image.yaml"
+      APP_NAME: "vonage-voice"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,7 +25,7 @@ jobs:
 
       - name: docker build app dev
         run: |
-          cd app && docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+          cd providers/vonage-voice && docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
       - name: docker push dev
         run: |
@@ -29,9 +33,11 @@ jobs:
 
       - name: update image tag in argocd repo
         run: |
-          FILE_SHA=$(sed -n 's/^.*"sha": "//p' <(curl -s -u sichan-vonage:${TOKEN_GITHUB} ${ARGOCD_IMAGE_FILE_URL}) | sed -n 's/".*$//p')
+          RESPONSE=$(curl -s -u sichan-vonage:${TOKEN_GITHUB} ${ARGOCD_IMAGE_FILE_URL})
 
-          curl --trace-ascii /dev/stdout -u sichan-vonage:${TOKEN_GITHUB} \
+          FILE_SHA=$(echo ${RESPONSE} | sed -n 's/^.*"sha": "//p' | sed -n 's/".*$//p')
+
+          curl -u sichan-vonage:${TOKEN_GITHUB} \
           -X PUT ${ARGOCD_IMAGE_FILE_URL} \
           --header 'Content-Type: application/json' \
           --data-raw '{

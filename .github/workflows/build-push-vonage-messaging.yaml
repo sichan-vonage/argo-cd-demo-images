@@ -1,0 +1,47 @@
+name: Docker build and push vonage messaging
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - providers/vonage-messaging/**
+
+jobs:
+  build:
+    env:
+      TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      IMAGE_NAME: "kinluek/vonage-messaging"
+      IMAGE_TAG: "1.0.1"
+      ARGOCD_IMAGE_FILE_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs/contents/app-configurations/providers/vonage-messaging/values-dev-image.yaml"
+      APP_NAME: "vonage-messaging"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: docker login
+        run: |
+          docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+
+      - name: docker build app dev
+        run: |
+          cd providers/vonage-messaging && docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+
+      - name: docker push dev
+        run: |
+          docker push ${IMAGE_NAME}:${IMAGE_TAG}
+
+      - name: update image tag in argocd repo
+        run: |
+          RESPONSE=$(curl -s -u sichan-vonage:${TOKEN_GITHUB} ${ARGOCD_IMAGE_FILE_URL})
+
+          FILE_SHA=$(echo ${RESPONSE} | sed -n 's/^.*"sha": "//p' | sed -n 's/".*$//p')
+
+          curl -u sichan-vonage:${TOKEN_GITHUB} \
+          -X PUT ${ARGOCD_IMAGE_FILE_URL} \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "message": "updating '"${APP_NAME}"' image to tag '"${IMAGE_TAG}"' from ci bot",
+              "content": "'"$(echo "image_tag: ${IMAGE_TAG}" | base64)"'",
+              "sha": "'"${FILE_SHA}"'"
+          }'
