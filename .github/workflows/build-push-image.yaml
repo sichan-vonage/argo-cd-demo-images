@@ -4,28 +4,38 @@ on: [push]
 
 jobs:
   build:
+    env:
+      TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      IMAGE_NAME: "kinluek/app-dev"
+      IMAGE_TAG: "1.0.6"
+      ARGOCD_IMAGE_FILE_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs/contents/helm/temp/example-app/values-dev-image.yaml"
+      APP_NAME: "example-app"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: docker login
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+          docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
 
-#      - name: docker build app dev
-#        run: |
-#          cd app && docker build -t kinluek/app-dev:1.0.4 .
-#
-#      - name: docker push dev
-#        run: |
-#          docker push kinluek/app-dev:1.0.4
-
-      - name: docker build app prod
+      - name: docker build app dev
         run: |
-          cd app && docker build -t kinluek/app-prod:1.0.4 .
+          cd app && docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
-      - name: docker push prod
+      - name: docker push dev
         run: |
-          docker push kinluek/app-prod:1.0.4
+          docker push ${IMAGE_NAME}:${IMAGE_TAG}
+
+      - name: update image tag in argocd repo
+        run: |
+          FILE_SHA=$(sed -n 's/^.*"sha": "//p' <(curl -s -u sichan-vonage:${TOKEN_GITHUB} ${ARGOCD_IMAGE_FILE_URL}) | sed -n 's/".*$//p')
+
+          curl --trace-ascii /dev/stdout -u sichan-vonage:${TOKEN_GITHUB} \
+          -X PUT ${ARGOCD_IMAGE_FILE_URL} \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "message": "updating '"${APP_NAME}"' image to tag '"${IMAGE_TAG}"' from ci bot",
+              "content": "'"$(echo "image_tag: ${IMAGE_TAG}" | base64)"'",
+              "sha": "'"${FILE_SHA}"'"
+          }'
