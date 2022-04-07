@@ -13,7 +13,7 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       IMAGE_NAME: "kinluek/vonage-scheduler"
-      IMAGE_TAG: "1.0.1"
+      IMAGE_TAG: "1.0.2"
       ARGOCD_IMAGE_FILE_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs/contents/app-configurations/providers/vonage-scheduler/values-dev-image.yaml"
       APP_NAME: "vonage-scheduler"
     runs-on: ubuntu-latest
