@@ -13,8 +13,10 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       IMAGE_NAME: "kinluek/vonage-messaging"
-      IMAGE_TAG: "1.0.2"
+      IMAGE_TAG: "1.0.3"
       ARGOCD_IMAGE_FILE_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs/contents/app-configurations/providers/vonage-messaging/values-dev-image.yaml"
+      ARGOCD_REPO_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs"
+      ARGOCD_REPO_FILE_PATH: "app-configurations/providers/vonage-messaging/values-dev-image.yaml"
       APP_NAME: "vonage-messaging"
     runs-on: ubuntu-latest
     steps:
@@ -31,17 +33,23 @@ jobs:
         run: |
           docker push ${IMAGE_NAME}:${IMAGE_TAG}
 
-      - name: update image tag in argocd repo
-        run: |
-          RESPONSE=$(curl -s -u sichan-vonage:${TOKEN_GITHUB} ${ARGOCD_IMAGE_FILE_URL})
+      - name: update config repo
+        uses: docker://docker.io/kinluek/automerger:1.0.0
+        with:
+          args: |
+          -github-user=sichan-vonage -github-token=${TOKEN_GITHUB} -message="updating ${APP_NAME} image to tag ${IMAGE_TAG}" -content="image_tag: ${IMAGE_TAG}" -repo-url=${ARGOCD_REPO_URL} -file-path=${ARGOCD_REPO_FILE_PATH}
 
-          FILE_SHA=$(echo ${RESPONSE} | sed -n 's/^.*"sha": "//p' | sed -n 's/".*$//p')
+      # - name: update image tag in argocd repo
+      #   run: |
+      #     RESPONSE=$(curl -s -u sichan-vonage:${TOKEN_GITHUB} ${ARGOCD_IMAGE_FILE_URL})
 
-          curl -u sichan-vonage:${TOKEN_GITHUB} \
-          -X PUT ${ARGOCD_IMAGE_FILE_URL} \
-          --header 'Content-Type: application/json' \
-          --data-raw '{
-              "message": "updating '"${APP_NAME}"' image to tag '"${IMAGE_TAG}"' from ci bot",
-              "content": "'"$(echo "image_tag: ${IMAGE_TAG}" | base64)"'",
-              "sha": "'"${FILE_SHA}"'"
-          }'
+      #     FILE_SHA=$(echo ${RESPONSE} | sed -n 's/^.*"sha": "//p' | sed -n 's/".*$//p')
+
+      #     curl -u sichan-vonage:${TOKEN_GITHUB} \
+      #     -X PUT ${ARGOCD_IMAGE_FILE_URL} \
+      #     --header 'Content-Type: application/json' \
+      #     --data-raw '{
+      #         "message": "updating '"${APP_NAME}"' image to tag '"${IMAGE_TAG}"' from ci bot",
+      #         "content": "'"$(echo "image_tag: ${IMAGE_TAG}" | base64)"'",
+      #         "sha": "'"${FILE_SHA}"'"
+      #     }'
