@@ -34,10 +34,9 @@ jobs:
           docker push ${IMAGE_NAME}:${IMAGE_TAG}
 
       - name: update config repo
-        uses: docker://docker.io/kinluek/automerger:1.0.0
+        uses: kinluek/automerger:1.0.0
         with:
-          args: |
-          -github-user=sichan-vonage -github-token=${TOKEN_GITHUB} -message="updating ${APP_NAME} image to tag ${IMAGE_TAG}" -content="image_tag: ${IMAGE_TAG}" -repo-url=${ARGOCD_REPO_URL} -file-path=${ARGOCD_REPO_FILE_PATH}
+          args: '-github-user=sichan-vonage -github-token=${TOKEN_GITHUB} -message="updating ${APP_NAME} image to tag ${IMAGE_TAG}" -content="image_tag: ${IMAGE_TAG}" -repo-url=${ARGOCD_REPO_URL} -file-path=${ARGOCD_REPO_FILE_PATH}'
 
       # - name: update image tag in argocd repo
       #   run: |
