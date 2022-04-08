@@ -43,8 +43,9 @@ jobs:
     steps:
       - name: update config repo
         run: |
+          ls && \
           ./app -github-user=sichan-vonage -github-token=${TOKEN_GITHUB} \
-          -message="updating ${APP_NAME} image to tag ${IMAGE_TAG} \
+          -message="updating ${APP_NAME} image to tag ${IMAGE_TAG}" \
           -content="image_tag: ${IMAGE_TAG}" \
           -repo-url=${ARGOCD_REPO_URL} \
           -file-path=${ARGOCD_REPO_FILE_PATH}
