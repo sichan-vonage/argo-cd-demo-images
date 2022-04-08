@@ -18,33 +18,32 @@ env:
   APP_NAME: "vonage-messaging"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: docker login
-        run: |
-          docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: docker login
+  #       run: |
+  #         docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
 
-      - name: docker build app dev
-        run: |
-          cd providers/vonage-messaging && docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+  #     - name: docker build app dev
+  #       run: |
+  #         cd providers/vonage-messaging && docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
-      - name: docker push dev
-        run: |
-          docker push ${IMAGE_NAME}:${IMAGE_TAG}
+  #     - name: docker push dev
+  #       run: |
+  #         docker push ${IMAGE_NAME}:${IMAGE_TAG}
 
   deploy:
-    needs:
-      - build
+    # needs:
+    #   - build
     runs-on: ubuntu-latest
     container:
-      image: kinluek/automerger:1.0.0
+      image: kinluek/automerger:1.0.3
     steps:
       - name: update config repo
         run: |
-          ls && \
-          ./app -github-user=sichan-vonage -github-token=${TOKEN_GITHUB} \
+          app -github-user=sichan-vonage -github-token=${TOKEN_GITHUB} \
           -message="updating ${APP_NAME} image to tag ${IMAGE_TAG}" \
           -content="image_tag: ${IMAGE_TAG}" \
           -repo-url=${ARGOCD_REPO_URL} \
