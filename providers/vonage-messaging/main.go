@@ -9,7 +9,7 @@ import (
 
 const serviceName = "vonage-messaging"
 
-const version = "1.0.3-dsa"
+const version = "1.0.3-gfsfdg"
 
 func main() {
 	r := gin.Default()
