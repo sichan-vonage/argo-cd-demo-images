@@ -11,32 +11,32 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   IMAGE_NAME: "kinluek/vonage-messaging"
-  IMAGE_TAG: "1.0.3"
+  IMAGE_TAG: "1.0.4"
   ARGOCD_IMAGE_FILE_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs/contents/app-configurations/providers/vonage-messaging/values-dev-image.yaml"
   ARGOCD_REPO_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs"
   ARGOCD_REPO_FILE_PATH: "app-configurations/providers/vonage-messaging/values-dev-image.yaml"
   APP_NAME: "vonage-messaging"
 
 jobs:
-  # build:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: docker login
-  #       run: |
-  #         docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: docker login
+        run: |
+          docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
 
-  #     - name: docker build app dev
-  #       run: |
-  #         cd providers/vonage-messaging && docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+      - name: docker build app dev
+        run: |
+          cd providers/vonage-messaging && docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
-  #     - name: docker push dev
-  #       run: |
-  #         docker push ${IMAGE_NAME}:${IMAGE_TAG}
+      - name: docker push dev
+        run: |
+          docker push ${IMAGE_NAME}:${IMAGE_TAG}
 
   deploy:
-    # needs:
-    #   - build
+    needs:
+      - build
     runs-on: ubuntu-latest
     container:
       image: kinluek/automerger:1.0.3
