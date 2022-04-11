@@ -11,8 +11,7 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   IMAGE_NAME: "kinluek/vonage-messaging"
-  IMAGE_TAG: "1.0.4"
-  ARGOCD_IMAGE_FILE_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs/contents/app-configurations/providers/vonage-messaging/values-dev-image.yaml"
+  IMAGE_TAG: "1.0.5"
   ARGOCD_REPO_URL: "https://api.github.com/repos/sichan-vonage/argo-cd-demo-configs"
   ARGOCD_REPO_FILE_PATH: "app-configurations/providers/vonage-messaging/values-dev-image.yaml"
   APP_NAME: "vonage-messaging"
