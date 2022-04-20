@@ -9,7 +9,7 @@ import (
 
 const serviceName = "vonage-messaging"
 
-const version = "1.0.5"
+const version = "1.0.6"
 
 func main() {
 	r := gin.Default()
@@ -18,6 +18,7 @@ func main() {
 	if env == "" {
 		env = "N/A"
 	}
+
 	log.Printf("RUNNING %q IN ENV: %q", serviceName, env)
 
 	r.GET("/hello", func(c *gin.Context) {
